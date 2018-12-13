@@ -10,7 +10,17 @@ import (
 
 func createHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	fmt.Fprintf(w, "Hi there, I will create %s!", params["id"])
+	var url string
+	url = "http://localhost:9200/" + params["id"]
+	req, err := http.NewRequest(http.MethodPut, url, nil)
+	if err != nil {
+	// Handle error
+		panic(err)
+	}
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	defer resp.Body.Close()
+	fmt.Fprintf(w, "index %s created", params["id"])
 }
 
 func deleteHandler(w http.ResponseWriter, r *http.Request){
@@ -32,7 +42,7 @@ func getHandler(w http.ResponseWriter, r *http.Request){
 func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/get", getHandler).Methods("GET")
-	router.HandleFunc("/test/{id}", createHandler).Methods("POST")
+	router.HandleFunc("/test/{id}", createHandler).Methods("GET")
 	router.HandleFunc("/test/{id}", deleteHandler).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
