@@ -1,20 +1,30 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
+	"io/ioutil"
 	"log"
 	"net/http"
-	"io/ioutil"
-	"github.com/gorilla/mux"
 )
 
 func createHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
+	message := map[string]interface{}{
+		"settings": map[string]int{
+			"number_of_shards":   1,
+			"number_of_replicas": 0,
+		},
+	}
+	bytesRepresentation, err := json.Marshal(message)
 	var url string
 	url = "http://localhost:9200/" + params["id"]
-	req, err := http.NewRequest(http.MethodPut, url, nil)
+	req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(bytesRepresentation))
+	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
-	// Handle error
+		// Handle error
 		panic(err)
 	}
 	client := &http.Client{}
@@ -23,12 +33,12 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "index %s created", params["id"])
 }
 
-func deleteHandler(w http.ResponseWriter, r *http.Request){
+func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	fmt.Fprintf(w, "this will delete %s", params["id"])
 }
 
-func getHandler(w http.ResponseWriter, r *http.Request){
+func getHandler(w http.ResponseWriter, r *http.Request) {
 	url := "http://localhost:9200/_cat/indices"
 	resp, err := http.Get(url)
 	if err != nil {
