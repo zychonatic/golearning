@@ -32,6 +32,7 @@ func main() {
 		checkErr(err)
 		fmt.Println(id, firstname, lastname)
 	}
+	db.Close()
 }
 func checkErr(err error) {
 	if err != nil {
