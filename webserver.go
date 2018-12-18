@@ -37,7 +37,18 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	fmt.Fprintf(w, "this will delete %s", params["id"])
+	var url string
+        url = "http://localhost:9200/" + params["id"]
+	req, err := http.NewRequest(http.MethodDelete, url, nil)
+        req.Header.Set("Content-Type", "application/json")
+        if err != nil {
+                // Handle error
+                panic(err)
+        }
+        client := &http.Client{}
+        resp, err := client.Do(req)
+        defer resp.Body.Close()
+	fmt.Fprintf(w, "%s deleted", params["id"])
 }
 
 func getHandler(w http.ResponseWriter, r *http.Request) {
