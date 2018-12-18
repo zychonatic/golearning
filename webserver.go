@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
+	"bufio"
 )
 
 func createHandler(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +48,14 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer resp.Body.Close()
 	content, err := ioutil.ReadAll(resp.Body)
+	bs := string(content)
+	scanner := bufio.NewScanner(strings.NewReader(bs))
+	var line string
+	for scanner.Scan() {
+		line = scanner.Text()
+		index := strings.Split(line," ")
+		fmt.Println(index[2])
+	}
 	fmt.Fprintf(w, string(content))
 }
 
